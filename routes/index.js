@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const authController = require('../controllers/authController')
-const projectController = require('../controllers/projectController');
+const authController = require('../controllers/auth/authController')
+const projectController = require('../controllers/project/projectController');
 const managerAuth = require("../middleware/managerAuth");
 //testing the server so everyting's working
 router.get('/testing',(req,res)=>{

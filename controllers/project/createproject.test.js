@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require('../server');
+const app = require('../../server');
 const bcrypt = require('bcrypt')
 const knex = require('knex')({
     client: 'pg',

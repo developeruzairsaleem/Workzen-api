@@ -1,17 +1,9 @@
-const knex = require('knex')({
-    client: 'pg',
-    connection: {
-      host : '127.0.0.1',
-      port : 5432,
-      user : 'postgres',
-      password : 'test',
-      database : 'workzen'
-    }
-  });
+const knex = require('../../config/dbConfig')
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-
+const {validateUser} = require('../../utils/validationUtils')
+const {createResponseObjectRegister} = require('../../utils/responseUtils')
+const{savePasswordHashToDB,saveUserRoleToDB,saveUserToDB} = require('../../services/authService')
+const {generateRefreshToken,generateAccessToken,storeRefreshToken} = require('../../services/jwtService')
 
 //       ---------------auth schema------------
 //users          ----id-----username-------email-------
@@ -26,97 +18,10 @@ const jwt = require("jsonwebtoken");
 
 const authController = {
 
-  // validation function for checking string length
-  isValidStringLength(value,min,max){
-    return typeof value==='string' && value.length>=min && value.length<=max;
 
-  },
-
-  // validation function for checking email 
-  isValidEmail(email){
-    const emailRegex =  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return typeof email ==='string' && emailRegex.test(email);
-
-  },
-
-  // validating user data
-  validateUser(username, email, password) {
-    //validating username
-    if(!authController.isValidStringLength(username,5,100)){
-      return false;
-    }
-    // validating email
-    else if (!authController.isValidStringLength(email,5,100) || !authController.isValidEmail(email)) {
-      return false;
-    }
-    // validating password
-    else if (!authController.isValidStringLength(password,5,100)) {
-      return false;
-    }
-    // if everything is correct returning true
-    return true;
-  },
-
-  // Can generate either token refresh token or access token
-  generateToken(userid, role, expireString){
-    return jwt.sign({userid,role},process.env.JWT_SECRET,{expiresIn:expireString})
-  }
-  ,
-  // store the refresh token in database
-  storeRefreshToken(token,userid){
-   return knex.select('*').from('tokens').where({userid})
-    .then(tokenInDB=>{
-      if(tokenInDB[0]?.userid){
-       return knex('tokens').where({userid}).update({token})
-      }
-      else{
-        return knex('tokens').insert({userid,token})
-      }
-    })
-  }, 
+ 
 
 
-  // saving user into 'users' table in database in register
-   saveUserToDB (username,email,trx){
-    return knex.insert({username,email})
-    .into('users')
-    .returning('*')
-    .transacting(trx)
-  }
-  ,
-
-  // saving user role into 'userrole' table in database in register
-  saveUserRoleToDB(email,trx){
-
-    return knex.insert({email})
-    .into('userrole')
-    .returning('*')
-    .transacting(trx)
-  },
-
-  // hashing and saving password to database for register controller
-  savePasswordHashToDB(email,password,trx){
-
-    const hash= bcrypt.hashSync(password,10);
-    return  knex.insert({email,hash})
-    .into('login')
-    .returning('*')
-    .transacting(trx)
-
-  }
-  ,
-
-  // create response object for the register controller
-  createResponseObjectRegister(userData,userRole,userHash){
-    const response ={}
-    response.username= userData[0].username;
-    response.email = userData[0].email;
-    response.id = userData[0].id;
-    response.role = userRole[0].role;
-    response.hash= userHash[0].hash;
-    return response;
-  }
-  ,
 /*------------------------------------------------------------------------*/
 /*--------------------------Register Controller---------------------------*/
 /*------------------------------------------------------------------------*/
@@ -124,7 +29,7 @@ const authController = {
     const { username, email, password } = req.body;
 
     // validating user
-    const isValid = authController.validateUser(username, email, password);
+    const isValid = validateUser(username, email, password);
     if (!isValid) {
       // if credentials are not valid sending invalid response
       return res.status(400).json({error:"invalid"});
@@ -135,19 +40,21 @@ const authController = {
           const response =  await knex.transaction(async(trx) => {
 
           // save user data into postgres 
-            const userData = await authController.saveUserToDB(username,email,trx);
+            const userData = await saveUserToDB(username,email,trx);
 
           // save user role into postgres 
-            const userRole = await authController.saveUserRoleToDB(email,trx)
+            const userRole = await saveUserRoleToDB(email,trx);
 
           // save user hash into login table in database  
-            const userHash = await authController.savePasswordHashToDB(email,password,trx)
+            const userHash = await savePasswordHashToDB(email,password,trx);
+
+            // now let's generate tokens to send it to frontend
 
             // create a response object containing all the values returned from above db interaction
-            const response = authController.createResponseObjectRegister(userData,userRole,userHash)
+            const responseObj = createResponseObjectRegister(userData,userRole,userHash)
 
             // commit the transaction and return the response OBJ if everything is saved to db
-            return response;
+            return responseObj;
          })
           // after the successful transaction sending the response to the client with 'success'
           return  res.status(201).json(response)

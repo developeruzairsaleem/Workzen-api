@@ -1,16 +1,7 @@
 const request = require("supertest");
-const app = require('../server');
+const app = require('../../server');
 const bcrypt = require('bcrypt')
-const knex = require('knex')({
-    client: 'pg',
-    connection: {
-      host : '127.0.0.1',
-      port : 5432,
-      user : 'postgres',
-      password : 'test',
-      database : 'workzen'
-    }
-  });
+const knex = require('../../config/dbConfig')
 
 const cleanUpDatabase=async(email)=>{
     try {
