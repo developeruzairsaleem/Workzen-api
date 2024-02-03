@@ -9,6 +9,7 @@ const knex = require('knex')({
     }
   });
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 
 
@@ -56,6 +57,23 @@ const authController = {
     return true;
   },
 
+  // Can generate either token refresh token or access token
+  generateToken(userid, role, expireString){
+    return jwt.sign({userid,role},process.env.JWT_SECRET,{expiresIn:expireString})
+  }
+  ,
+  // store the refresh token in database
+  storeRefreshToken(token,userid){
+   return knex.select('*').from('tokens').where({userid})
+    .then(result=>{
+      if(result[0]?.userid){
+       return knex('tokens').where({userid}).update({token})
+      }
+      else{
+        return knex('tokens').insert({userid,token})
+      }
+    })
+  }, 
 
 
 
@@ -108,7 +126,9 @@ const authController = {
          .catch(trx.rollback);
        })
        .then(_=>{
+          
          return  res.status(201).json(response)
+
        })
        .catch(err=>{
          return  res.status(400).json({error:'user not created'});

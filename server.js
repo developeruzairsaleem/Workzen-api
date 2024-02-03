@@ -1,6 +1,7 @@
 // Imported external and internal modules
 const router = require('./routes/index');
 const express = require("express");
+require('dotenv').config();
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app= express();
