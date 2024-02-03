@@ -65,8 +65,8 @@ const authController = {
   // store the refresh token in database
   storeRefreshToken(token,userid){
    return knex.select('*').from('tokens').where({userid})
-    .then(result=>{
-      if(result[0]?.userid){
+    .then(tokenInDB=>{
+      if(tokenInDB[0]?.userid){
        return knex('tokens').where({userid}).update({token})
       }
       else{
@@ -76,67 +76,88 @@ const authController = {
   }, 
 
 
+  // saving user into 'users' table in database in register
+   saveUserToDB (username,email,trx){
+    return knex.insert({username,email})
+    .into('users')
+    .returning('*')
+    .transacting(trx)
+  }
+  ,
 
+  // saving user role into 'userrole' table in database in register
+  saveUserRoleToDB(email,trx){
 
+    return knex.insert({email})
+    .into('userrole')
+    .returning('*')
+    .transacting(trx)
+  },
 
+  // hashing and saving password to database for register controller
+  savePasswordHashToDB(email,password,trx){
 
+    const hash= bcrypt.hashSync(password,10);
+    return  knex.insert({email,hash})
+    .into('login')
+    .returning('*')
+    .transacting(trx)
 
+  }
+  ,
 
-
-
-
-
-
-  register: function (req, res, next) {
+  // create response object for the register controller
+  createResponseObjectRegister(userData,userRole,userHash){
+    const response ={}
+    response.username= userData[0].username;
+    response.email = userData[0].email;
+    response.id = userData[0].id;
+    response.role = userRole[0].role;
+    response.hash= userHash[0].hash;
+    return response;
+  }
+  ,
+/*------------------------------------------------------------------------*/
+/*--------------------------Register Controller---------------------------*/
+/*------------------------------------------------------------------------*/
+  async register(req, res){
     const { username, email, password } = req.body;
-    const response = {};
+
     // validating user
     const isValid = authController.validateUser(username, email, password);
-    if (isValid) {
-      // if valid sending data to postgres
-      knex.transaction((trx) => {
-        const hash= bcrypt.hashSync(password,10);
-        return knex.insert({username,email})
-         .into('users')
-         .returning('*')
-         .transacting(trx)
-         .then(userData=>{
-          console.log("USERDATA INSERTED:",userData);
-          response.username= userData[0].username;
-          response.email = userData[0].email;
-          response.id = userData[0].id;
-          return knex.insert({email})
-          .into('userrole')
-          .returning('*')
-          .transacting(trx)
-         })
-         .then(userRole=>{
-           response.role = userRole[0].role;
-          console.log("USERROLE INSERTED:", userRole);
-          return  knex.insert({email,hash})
-          .into('login')
-          .returning('*')
-          .transacting(trx)
-         })
-         .then(res=>{
-           response.hash= res[0].hash;
-           console.log("USER HASH INSERTED",res);
-         })
-         .then( trx.commit)
-         .catch(trx.rollback);
-       })
-       .then(_=>{
-          
-         return  res.status(201).json(response)
-
-       })
-       .catch(err=>{
-         return  res.status(400).json({error:'user not created'});
-       })
-
-    } else {
+    if (!isValid) {
+      // if credentials are not valid sending invalid response
       return res.status(400).json({error:"invalid"});
     }
+      try {
+
+          // if the credentials are valid creating a transaction for storing data
+          const response =  await knex.transaction(async(trx) => {
+
+          // save user data into postgres 
+            const userData = await authController.saveUserToDB(username,email,trx);
+
+          // save user role into postgres 
+            const userRole = await authController.saveUserRoleToDB(email,trx)
+
+          // save user hash into login table in database  
+            const userHash = await authController.savePasswordHashToDB(email,password,trx)
+
+            // create a response object containing all the values returned from above db interaction
+            const response = authController.createResponseObjectRegister(userData,userRole,userHash)
+
+            // commit the transaction and return the response OBJ if everything is saved to db
+            return response;
+         })
+          // after the successful transaction sending the response to the client with 'success'
+          return  res.status(201).json(response)
+        }
+      catch (error) {
+
+          // if any error occured during transaction respond with 400 error
+          console.log(error)
+           return  res.status(400).json({error:'user not created'});
+      }
   },
 
 
