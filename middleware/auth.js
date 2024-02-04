@@ -3,7 +3,7 @@ const knex = require("../config/dbConfig")
 const auth = async(req,res,next)=>{
    const accessToken = req.headers['Authorization'];
    if (!accessToken){
-      return res.status(401).json({error:"Unauthorized"})
+      return res.status(401).json({error:"unauthorized"})
    }
 try{
 
@@ -14,13 +14,13 @@ try{
       
       req.user = decoded;
     const user = await knex.select('*').from('users').where({id:decoded.userid}).first();
-    if(!user) return res.status(401).json({error:"user not found"})  
+    if(!user) {return res.status(401).json({error:"user not found"}) } 
     return next();
    })
    
 }
 catch(error){
-   return res.status
+   return res.status(401).json({error:"unauthorized"})
 }
 }
 
