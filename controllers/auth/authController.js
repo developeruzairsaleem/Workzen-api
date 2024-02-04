@@ -82,69 +82,9 @@ const authController = {
 
 
 
-
-
-
-
-
-// //  login controller
-//   login(req, res, next) {
-
-//     const {email, password } = req.body;
-//     const response ={};
-
-
-//     // validating user
-//     const isValid = authController.validateUser("DEFAULT", email, password);
-//     if(!isValid){
-//       return res.status(400).json({ error:"invalid"});
-//     }
-
-
-//     // Retrieving user data from the database
-//       knex.select("*").from("login").where({email}).first()
-//       .then(user=>{
-//         if(!user){
-//           throw new Error("User not found!")
-//         }
-//         // Comparing passwords
-//         return bcrypt.compare(password, user.hash);
-//       })
-
-//       //handling the password match
-//       .then(passwordMatch=>{
-//         if(!passwordMatch){
-//          throw new Error('password did not match');
-//         }
-//         return knex.select('*').from('users').where({email}).first()
-//       })
-
-//       //handling the user data
-//       .then(user=>{
-//         response.username= user.username;
-//         response.email= user.email;
-//         response.id = user.id;
-//         return knex.select("*").from('userrole').where({email}).first()
-//       })
-
-//       //handling the role data
-//       .then(userRole=>{
-//         response.role= userRole.role;
-//         return res.status(200).json(response)
-//       })
-//       .catch((err)=> {
-//         console.log(err)
-//         res.status(400).json({error:"invalid credentials"})})
-
-
-//   },
-
-
-
-
-
-
-
+/*------------------------------------------------------------------------*/
+/*---------------------------- Login Controller---------------------------*/
+/*------------------------------------------------------------------------*/
 
  async login(req,res,next){
 

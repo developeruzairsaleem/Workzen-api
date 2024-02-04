@@ -6,7 +6,6 @@ const projectController={
  
     async createProject(req,res,next){
         const{email, title, description} = req.body;
-        const response = {};
         try {
             await knex.transaction(async (trx)=>{
 

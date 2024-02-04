@@ -3,6 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/auth/authController')
 const projectController = require('../controllers/project/projectController');
 const managerAuth = require("../middleware/managerAuth");
+const auth = require('../middleware/auth')
 //testing the server so everyting's working
 router.get('/testing',(req,res)=>{
     res.json('Just testing it!');
@@ -12,11 +13,11 @@ router.get('/testing',(req,res)=>{
 
 router.post('/api/register',authController.register);
 router.post('/api/login',authController.login);
-router.post('/api/logout',authController.logout);
+router.post('/api/logout',auth,authController.logout);
 
 // project routes
 
-router.post('/api/projects',managerAuth,projectController.createProject);
+router.post('/api/projects',auth, managerAuth, projectController.createProject);
 module.exports = router;
 
 
