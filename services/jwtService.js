@@ -15,14 +15,14 @@ const knex = require('../config/dbConfig')
   
 
   // store the refresh token in database
- const storeRefreshToken=(token,userid)=>{
-   return knex.select('*').from('tokens').where({userid})
+ const storeRefreshToken=(token,userid,trx)=>{
+   return knex.select('*').from('tokens').where({userid}).transacting(trx)
     .then(tokenInDB=>{
       if(tokenInDB[0]?.userid){
-       return knex('tokens').where({userid}).update({token})
+       return trx('tokens').where({userid}).update({token})
       }
       else{
-        return knex('tokens').insert({userid,token})
+        return trx('tokens').insert({userid,token})
       }
     })
   }

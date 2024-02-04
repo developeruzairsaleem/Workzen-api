@@ -1,7 +1,7 @@
 const knex = require('../../config/dbConfig')
 const bcrypt = require("bcrypt");
 const {validateUser} = require('../../utils/validationUtils')
-const {createResponseObjectRegister} = require('../../utils/responseUtils')
+const {createResponseObjectRegister, saveTokensInResponseObj} = require('../../utils/responseUtils')
 const{savePasswordHashToDB,saveUserRoleToDB,saveUserToDB} = require('../../services/authService')
 const {generateRefreshToken,generateAccessToken,storeRefreshToken} = require('../../services/jwtService')
 
@@ -47,14 +47,25 @@ const authController = {
 
           // save user hash into login table in database  
             const userHash = await savePasswordHashToDB(email,password,trx);
-
-            // now let's generate tokens to send it to frontend
-
+ 
             // create a response object containing all the values returned from above db interaction
             const responseObj = createResponseObjectRegister(userData,userRole,userHash)
+           
+            // generate access token 
+            const accessToken = generateAccessToken(responseObj.id,responseObj.role);
+
+            // generate refresh token to get new access token when it expires
+           const refreshToken = generateRefreshToken(responseObj.id,responseObj.role);
+
+           // store refresh token in db
+           await storeRefreshToken(refreshToken,responseObj.id,trx)
+
+           //save tokens in response obj
+           const responseObjForUser = saveTokensInResponseObj(responseObj,accessToken,refreshToken)
+
 
             // commit the transaction and return the response OBJ if everything is saved to db
-            return responseObj;
+            return responseObjForUser;
          })
           // after the successful transaction sending the response to the client with 'success'
           return  res.status(201).json(response)
@@ -63,7 +74,7 @@ const authController = {
 
           // if any error occured during transaction respond with 400 error
           console.log(error)
-           return  res.status(400).json({error:'user not created'});
+          return  res.status(400).json({error:'user not created'});
       }
   },
 

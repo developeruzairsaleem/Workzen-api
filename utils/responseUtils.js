@@ -1,3 +1,4 @@
+const { response } = require("../server");
 
   // create response object for the register controller
  const createResponseObjectRegister=(userData,userRole,userHash)=>{
@@ -11,6 +12,15 @@
   }
 
 
+  // save tokens in register response obj
+  const saveTokensInResponseObj=(responseObj,accessToken,refreshToken)=>{
+    responseObj.accessToken= accessToken;
+    responseObj.refreshToken = refreshToken;
+    return responseObj;
+
+  }
+
+
   module.exports = {
-    createResponseObjectRegister
+    createResponseObjectRegister, saveTokensInResponseObj
   }
