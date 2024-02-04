@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken')
 const knex = require("../config/dbConfig")
 const auth = async(req,res,next)=>{
-   const accessToken = req.headers['Authorization'];
+   const accessToken = req.headers.authorization;
    if (!accessToken){
-      return res.status(401).json({error:"unauthorized"})
+      return res.status(401).json({error:"unauthorizzed"})
    }
-try{
-
+   
+   try{
    jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET,async(err,decoded)=>{
       if(err){
          return res.status(401).json({error:"Invalid token"})
@@ -21,6 +21,7 @@ try{
 }
 catch(error){
    return res.status(401).json({error:"unauthorized"})
+
 }
 }
 

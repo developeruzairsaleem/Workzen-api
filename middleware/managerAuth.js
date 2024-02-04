@@ -1,6 +1,5 @@
 // const knex = require('../config/dbConfig')
-const managerAuth =async(req,res,next)=>{
-  
+const managerAuth =(req,res,next)=>{
       if(req?.user?.role==='project manager'||req?.user?.role==='admin'){
           return next();
       }

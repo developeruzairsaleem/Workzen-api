@@ -32,7 +32,24 @@ const { response } = require("../server");
         }
   }
 
+  // creating a response object for create project controller
+
+  createResponseObjectCreateProject=(registeredProject,registeredProjectRole,author)=>{
+
+    return {
+      title:registeredProject.title,
+      description:registeredProject.description,
+      author:author.username,
+      projectId:registeredProject.id,
+      status:registeredProject.status,
+      authorId:author.id,
+      authorRole:registeredProjectRole.role
+    }
+
+  }
+
 
   module.exports = {
-    createResponseObjectRegister, saveTokensInResponseObj, createResponseObjectLogin
+    createResponseObjectRegister, saveTokensInResponseObj, createResponseObjectLogin,
+    createResponseObjectCreateProject
   }
