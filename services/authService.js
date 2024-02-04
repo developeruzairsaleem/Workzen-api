@@ -30,7 +30,28 @@ const saveUserToDB= (username,email,trx)=>{
     .transacting(trx)
   }
 
+  // check in the database does the user exist in 'login' table
+  isUserRegistered=(email)=>{
+    return knex.select("*").from("login").where({email}).first()
+  }
+  
+    // check if the entered password is correct
+    isPasswordCorrect=(password,hash)=>{
+     return bcrypt.compare(password,hash)
+      
+    }
 
+
+    // get user from db
+    getUser=(email)=>{
+      return  knex.select("*").from('users').where({email}).first()
+    }
+
+    // get user role
+    getUserRole = (email) =>{
+      return knex.select("*").from('userrole').where({email}).first()
+    }
   module.exports={
-    savePasswordHashToDB,saveUserToDB,saveUserRoleToDB
+    savePasswordHashToDB,saveUserToDB,saveUserRoleToDB, isUserRegistered,
+    isPasswordCorrect,getUser,getUserRole
   }

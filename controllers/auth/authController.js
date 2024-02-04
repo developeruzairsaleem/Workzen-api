@@ -1,8 +1,8 @@
 const knex = require('../../config/dbConfig')
 const bcrypt = require("bcrypt");
 const {validateUser} = require('../../utils/validationUtils')
-const {createResponseObjectRegister, saveTokensInResponseObj} = require('../../utils/responseUtils')
-const{savePasswordHashToDB,saveUserRoleToDB,saveUserToDB} = require('../../services/authService')
+const {createResponseObjectRegister, saveTokensInResponseObj, createResponseObjectLogin} = require('../../utils/responseUtils')
+const{savePasswordHashToDB,saveUserRoleToDB,saveUserToDB, isUserRegistered, isPasswordCorrect, getUserRole, getUser} = require('../../services/authService')
 const {generateRefreshToken,generateAccessToken,storeRefreshToken} = require('../../services/jwtService')
 
 //       ---------------auth schema------------
@@ -58,15 +58,15 @@ const authController = {
            const refreshToken = generateRefreshToken(responseObj.id,responseObj.role);
 
            // store refresh token in db
-           await storeRefreshToken(refreshToken,responseObj.id,trx)
+           await storeRefreshToken(refreshToken,responseObj.id,trx);
 
            //save tokens in response obj
            const responseObjForUser = saveTokensInResponseObj(responseObj,accessToken,refreshToken)
 
-
             // commit the transaction and return the response OBJ if everything is saved to db
             return responseObjForUser;
          })
+
           // after the successful transaction sending the response to the client with 'success'
           return  res.status(201).json(response)
         }
@@ -87,59 +87,109 @@ const authController = {
 
 
 
-//  login controller
-  login(req, res, next) {
+// //  login controller
+//   login(req, res, next) {
 
-    const {email, password } = req.body;
-    const response ={};
+//     const {email, password } = req.body;
+//     const response ={};
 
+
+//     // validating user
+//     const isValid = authController.validateUser("DEFAULT", email, password);
+//     if(!isValid){
+//       return res.status(400).json({ error:"invalid"});
+//     }
+
+
+//     // Retrieving user data from the database
+//       knex.select("*").from("login").where({email}).first()
+//       .then(user=>{
+//         if(!user){
+//           throw new Error("User not found!")
+//         }
+//         // Comparing passwords
+//         return bcrypt.compare(password, user.hash);
+//       })
+
+//       //handling the password match
+//       .then(passwordMatch=>{
+//         if(!passwordMatch){
+//          throw new Error('password did not match');
+//         }
+//         return knex.select('*').from('users').where({email}).first()
+//       })
+
+//       //handling the user data
+//       .then(user=>{
+//         response.username= user.username;
+//         response.email= user.email;
+//         response.id = user.id;
+//         return knex.select("*").from('userrole').where({email}).first()
+//       })
+
+//       //handling the role data
+//       .then(userRole=>{
+//         response.role= userRole.role;
+//         return res.status(200).json(response)
+//       })
+//       .catch((err)=> {
+//         console.log(err)
+//         res.status(400).json({error:"invalid credentials"})})
+
+
+//   },
+
+
+
+
+
+
+
+
+ async login(req,res,next){
+
+    const {email, password} = req.body;
 
     // validating user
-    const isValid = authController.validateUser("DEFAULT", email, password);
+    const isValid = validateUser("DEFAULT", email, password);
     if(!isValid){
-      return res.status(400).json({ error:"invalid"});
+      return res.status(400).json({error:"invalid"})
+    }
+    try{
+
+      // check if the user is registered in db
+      const userLogin = await isUserRegistered(email);
+      if(!userLogin){
+        return res.status(400).json({error:"invalid credentials"});
+      }
+
+      // check if the password matches with the hash
+      const match = await isPasswordCorrect(password, userLogin.hash)
+      if(!match) {
+       return res.status(400).json({error:"invalid credentials"})
+      }
+
+      // get user data from db
+     const user = await getUser(email)
+     const userRole = await getUserRole(email)
+
+      //generate tokens and update them to db
+     const refreshToken = generateRefreshToken(user.id,userRole.role)
+     const accessToken = generateAccessToken(user.id,userRole.role)
+     await storeRefreshToken(refreshToken,user.id,knex)
+    
+     // create response object from user data
+     const response = createResponseObjectLogin(user,userRole,accessToken,refreshToken)
+
+      return res.status(200).json(response)
+    }
+    catch(error){
+      return res.status(400).json({error:"unable to login"})
     }
 
 
-    // Retrieving user data from the database
-      knex.select("*").from("login").where({email}).first()
-      .then(user=>{
-        if(!user){
-          throw new Error("User not found!")
-        }
-        // Comparing passwords  
-        return bcrypt.compare(password, user.hash);
-      })
-
-      //handling the password match
-      .then(passwordMatch=>{
-        if(!passwordMatch){
-         throw new Error('password did not match');
-        }
-        return knex.select('*').from('users').where({email}).first()
-      })
-
-      //handling the user data
-      .then(user=>{
-        response.username= user.username;
-        response.email= user.email;
-        response.id = user.id;
-        return knex.select("*").from('userrole').where({email}).first()
-      })
-
-      //handling the role data
-      .then(userRole=>{
-        response.role= userRole.role;
-        return res.status(200).json(response)
-      })
-      .catch((err)=> {
-        console.log(err)
-        res.status(400).json({error:"invalid credentials"})})
-
-
-  },
-
-
+  }
+,
 
 
   logout(req, res, next) {},

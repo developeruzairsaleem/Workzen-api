@@ -16,7 +16,7 @@ const knex = require('../config/dbConfig')
 
   // store the refresh token in database
  const storeRefreshToken=(token,userid,trx)=>{
-   return knex.select('*').from('tokens').where({userid}).transacting(trx)
+   return trx.select('*').from('tokens').where({userid})
     .then(tokenInDB=>{
       if(tokenInDB[0]?.userid){
        return trx('tokens').where({userid}).update({token})

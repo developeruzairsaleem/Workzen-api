@@ -20,7 +20,19 @@ const { response } = require("../server");
 
   }
 
+  // creating response object for login controller so we can save the data there
+  const createResponseObjectLogin=(user,userRole,accessToken, refreshToken)=>{
+        return{
+          username:user.username,
+          email:user.email,
+          id:user.id,
+          role:userRole.role,
+          accessToken,
+          refreshToken
+        }
+  }
+
 
   module.exports = {
-    createResponseObjectRegister, saveTokensInResponseObj
+    createResponseObjectRegister, saveTokensInResponseObj, createResponseObjectLogin
   }
