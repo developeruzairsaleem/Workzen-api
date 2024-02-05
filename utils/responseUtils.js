@@ -1,3 +1,4 @@
+const knex = require("knex");
 const { response } = require("../server");
 
   // create response object for the register controller
@@ -34,7 +35,7 @@ const { response } = require("../server");
 
   // creating a response object for create project controller
 
-  createResponseObjectCreateProject=(registeredProject,registeredProjectRole,author)=>{
+  const createResponseObjectCreateProject=(registeredProject,registeredProjectRole,author)=>{
 
     return {
       title:registeredProject.title,
@@ -48,6 +49,12 @@ const { response } = require("../server");
 
   }
 
+
+  const createResponseObjAllProjects=async(projects,projectRoles,projectMembers)=>{
+
+
+
+  }
 
   module.exports = {
     createResponseObjectRegister, saveTokensInResponseObj, createResponseObjectLogin,

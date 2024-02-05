@@ -5,7 +5,8 @@ const { createResponseObjectCreateProject } = require('../../utils/responseUtils
 
 
 const projectController={
- 
+    // POST /api/projects
+    // CREATE A NEW PROJECT 
     async createProject(req, res, next){
         const{email, title, description} = req.body;
         try {
@@ -16,7 +17,7 @@ const projectController={
                const[registeredProjectRole] =    await saveProjectRole(registeredProject.id,email,trx);
                const[author]                =    await getUserForProject(email,trx);
                await saveProjectMember(registeredProjectRole.projectid,email,trx);
-               return  createResponseObjectCreateProject(registeredProject,registeredProjectRole,author)
+               return  createResponseObjectCreateProject(registeredProject,registeredProjectRole,author);
 
             });
 
@@ -28,6 +29,27 @@ const projectController={
         }
     }
 
+    ,
+
+
+
+
+    // GET /api/projects
+    // GET ALL THE PROJECTS (FOR THE PROJECTS PAGE)
+
+    async getAllProjects(req,res,next){
+
+        try {
+           const projects = await knex.select('*').from('projects');
+           const projectRoles = await knex.select('*').from('projectrole');
+           const projectMembers = await knex.select('*').from('projectmembers');
+           createResponseObjAllProjects(projects,projectRoles,projectMembers);
+        } catch (error) {
+            console.log(error);
+
+        }
+
+    },
 }
 //      ---------------projects schema--------------
 //projects       ----id-----email----------status--------title--------description-------

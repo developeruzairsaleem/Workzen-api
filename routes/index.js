@@ -40,7 +40,7 @@ POST /api/logout
 
 Project Routes:
 
-Create Project:----------ONGOING
+Create Project:----------DONE
 POST /api/projects
 
 
