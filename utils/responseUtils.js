@@ -46,15 +46,8 @@ const { response } = require("../server");
       authorId:author.id,
       authorRole:registeredProjectRole.role
     }
-
   }
 
-
-  const createResponseObjAllProjects=async(projects,projectRoles,projectMembers)=>{
-
-
-
-  }
 
   module.exports = {
     createResponseObjectRegister, saveTokensInResponseObj, createResponseObjectLogin,

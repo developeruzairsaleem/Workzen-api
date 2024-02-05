@@ -1,5 +1,4 @@
 const knex = require('../../config/dbConfig')
-const bcrypt = require("bcrypt");
 const { saveProjectToDB, saveProjectRole, getUserForProject, saveProjectMember } = require('../../services/projectService');
 const { createResponseObjectCreateProject } = require('../../utils/responseUtils');
 
@@ -8,15 +7,15 @@ const projectController={
     // POST /api/projects
     // CREATE A NEW PROJECT 
     async createProject(req, res, next){
-        const{email, title, description} = req.body;
+        const{title, description} = req.body;
         try {
           const response =  await knex.transaction( async (trx)=>{
 
                // Define and insert the project data in database
-               const[registeredProject]     =    await saveProjectToDB(email,title,description,trx);
-               const[registeredProjectRole] =    await saveProjectRole(registeredProject.id,email,trx);
-               const[author]                =    await getUserForProject(email,trx);
-               await saveProjectMember(registeredProjectRole.projectid,email,trx);
+               const[author]                =    await getUserForProject(req.user.userid,trx);
+               const[registeredProject]     =    await saveProjectToDB(author.username,title,description,trx,author.email);
+               const[registeredProjectRole] =    await saveProjectRole(registeredProject.id,author.username,trx);
+               await saveProjectMember(registeredProjectRole.projectid,author.username,trx);
                return  createResponseObjectCreateProject(registeredProject,registeredProjectRole,author);
 
             });
@@ -40,13 +39,16 @@ const projectController={
     async getAllProjects(req,res,next){
 
         try {
-           const projects = await knex.select('*').from('projects');
-           const projectRoles = await knex.select('*').from('projectrole');
-           const projectMembers = await knex.select('*').from('projectmembers');
-           createResponseObjAllProjects(projects,projectRoles,projectMembers);
+
+            // getting all the projects along with their users(who created the project with their roles)
+          const response = await knex.select('projects.username','projects.title','projects.description','projects.status','projects.id','userrole.role').from('projects').innerJoin('userrole','projects.email','userrole.email')
+
+
+          // sending the response back to the client
+          return res.status(200).json({response})
         } catch (error) {
             console.log(error);
-
+            res.status(400).json({error:'unable to get the projects'})
         }
 
     },
@@ -55,6 +57,12 @@ const projectController={
 //projects       ----id-----email----------status--------title--------description-------
 //projectmembers ----id-----projectid------email------
 //projectrole    ----id-----role-----------projectid-----email
+
+
+
+
+
+
 
 
 

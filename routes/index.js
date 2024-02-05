@@ -18,6 +18,7 @@ router.post('/api/logout',auth,authController.logout);
 // project routes
 
 router.post('/api/projects',auth, managerAuth, projectController.createProject);
+router.get('/api/projects',auth, projectController.getAllProjects);
 module.exports = router;
 
 
@@ -44,11 +45,11 @@ Create Project:----------DONE
 POST /api/projects
 
 
-Get All Projects:
+Get All Projects:--------DONE
 GET /api/projects
 
 
-Get Project by ID:
+Get Project by ID:---------ONGOING
 GET /api/projects/:projectId
 
 
