@@ -3,7 +3,8 @@ const router = express.Router();
 const authController = require('../controllers/auth/authController')
 const projectController = require('../controllers/project/projectController');
 const managerAuth = require("../middleware/managerAuth");
-const auth = require('../middleware/auth')
+const auth = require('../middleware/auth');
+const taskController = require("../controllers/tasks/taskController");
 //testing the server so everyting's working
 router.get('/testing',(req,res)=>{
     res.json('Just testing it!');
@@ -19,6 +20,10 @@ router.post('/api/logout',auth,authController.logout);
 
 router.post('/api/projects',auth, managerAuth, projectController.createProject);
 router.get('/api/projects',auth, projectController.getAllProjects);
+
+
+// task routes
+router.post('/api/projects/:projectId/tasks',auth,taskController.createTask)
 module.exports = router;
 
 

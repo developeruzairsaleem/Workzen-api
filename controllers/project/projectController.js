@@ -52,15 +52,29 @@ const projectController={
         }
 
     },
-}
-//      ---------------projects schema--------------
-//projects       ----id-----email----------status--------title--------description-------
+    //      ---------------projects schema--------------
+    //projects       ----id-----email----------status--------title--------description-------
 //projectmembers ----id-----projectid------email------
 //projectrole    ----id-----role-----------projectid-----email
 
 
 
 
+// Get Project by ID:---------ONGOING
+// GET /api/projects/:projectId
+
+async getProjectById(req,res,next){
+
+    
+
+
+
+
+}
+
+
+
+}
 
 
 
