@@ -9,7 +9,8 @@ async createTask(req,res, next){
 
 // task routes
 // router.post('/api/projects/:projectId/tasks',auth,taskController.createTask)
-   const {title,description,assignedUsername} = req.body;
+    // validation for deadline and title description 
+   const {title,description,assignedUsername, deadline} = req.body;
    const{projectId} = req.params;
    const {userid,role}=req.user;
    let user ;
@@ -42,15 +43,27 @@ async createTask(req,res, next){
 
     // ------3 -----------
     // task schema 
-    // ----------id-------title------description-------projectid-------email------assigned------status
-    // save the user task
+    // -------id-------title------description-------projectid-------email------assigned------status-------
+    // CHECK IF THE ASSINGED USER IS THE PROJECT MEMBER
     try {
-        
-        assignedUsername
+       
+       const [assignedUser] = await knex.select("*").from('projectmembers').where({username:assignedUsername,projectid:projectId})
+       if(!assignedUser){
+        return res.status(401).json({error:'assigned user is not the project member'})
+       }
+      
+      
+       // insert the task into database
+    //   ------------- first get the current time 
+       
+       const createdTask = await knex.insert({title,description,projectid:projectId,username:user.username,assigned:assignedUsername, start : knex.fn.now(), deadline}).into('tasks').returning('*');
+      
+       return res.status(201).json({response: createdTask})
+
     }
      catch (error) {
         console.log(error);
-   
+        res.status(500).json({error:"Internal server error"})
     }
     
 
