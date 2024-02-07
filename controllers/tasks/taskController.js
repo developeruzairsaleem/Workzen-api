@@ -9,11 +9,11 @@ async createTask(req,res, next){
 
 // task routes
 // router.post('/api/projects/:projectId/tasks',auth,taskController.createTask)
-   const {title,description} = req.body;
+   const {title,description,assignedUsername} = req.body;
    const{projectId} = req.params;
    const {userid,role}=req.user;
    let user ;
-    
+
    // -----------1 get the username of the user
     try {
        user = await knex.select('*').from('users').where({id:userid}).first();
@@ -24,7 +24,7 @@ async createTask(req,res, next){
 
 
 
-    // ---2 first we have to verify that the current user is the member of the project or 'admin'
+    // -----------2 first we have to verify that the current user is the member of the project or 'admin'
     // ---projectmembers schema  id--------projectid----------username
         try {
          const userMember = await  knex.select('*').from('projectmembers').where({username:user.username,projectid:projectId})
@@ -41,6 +41,21 @@ async createTask(req,res, next){
 
 
     // ------3 -----------
+    // task schema 
+    // ----------id-------title------description-------projectid-------email------assigned------status
+    // save the user task
+    try {
+        
+        assignedUsername
+    }
+     catch (error) {
+        console.log(error);
+   
+    }
+    
+
+
+
 
 
 
