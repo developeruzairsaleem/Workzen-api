@@ -1,6 +1,23 @@
 const knex =require('../../config/dbConfig');
 
 
+
+const verifyDeadline =(deadline)=>{
+ 
+ if(new Date(deadline).getTime()){
+
+   if(new Date(deadline).getTime()>new Date().getTime()){
+      return true;
+   }
+    return false;
+ }
+   
+   return false;
+
+}
+
+
+
 const taskController = {
 
 async createTask(req,res, next){
@@ -11,6 +28,8 @@ async createTask(req,res, next){
 // router.post('/api/projects/:projectId/tasks',auth,taskController.createTask)
     // validation for deadline and title description 
    const {title,description,assignedUsername, deadline} = req.body;
+
+   if(!verifyDeadline(deadline)) return res.status(400).json({error:"Invalid date format"})
    const{projectId} = req.params;
    const {userid,role}=req.user;
    let user ;
@@ -57,9 +76,8 @@ async createTask(req,res, next){
     //   ------------- first get the current time 
        
        const createdTask = await knex.insert({title,description,projectid:projectId,username:user.username,assigned:assignedUsername, start : knex.fn.now(), deadline}).into('tasks').returning('*');
-      
-       return res.status(201).json({response: createdTask})
 
+       return res.status(201).json({response: createdTask})
     }
      catch (error) {
         console.log(error);
