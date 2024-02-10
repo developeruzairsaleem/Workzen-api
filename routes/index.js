@@ -5,6 +5,7 @@ const projectController = require('../controllers/project/projectController');
 const managerAuth = require("../middleware/managerAuth");
 const auth = require('../middleware/auth');
 const taskController = require("../controllers/tasks/taskController");
+const isCurrentManager = require("../middleware/isCurrentManager");
 //testing the server so everyting's working
 router.get('/testing',(req,res)=>{
     res.json('Just testing it!');
@@ -21,7 +22,7 @@ router.post('/api/logout',auth,authController.logout);
 router.post('/api/projects',auth, managerAuth, projectController.createProject);
 router.get('/api/projects/',auth, projectController.getAllProjects);
 router.get('/api/projects/:projectId',auth, projectController.getProjectById);
-router.put('/api/projects/:projectId',auth,managerAuth, projectController.getProjectById);
+router.put('/api/projects/:projectId',auth,isCurrentManager, projectController.updateProject);
 // task routes
 router.post('/api/projects/:projectId/tasks',auth,taskController.createTask)
 module.exports = router;
