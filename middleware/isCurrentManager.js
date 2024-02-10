@@ -8,8 +8,14 @@ const isCurrentManager=async(req,res,next)=>{
     }
 
     const {projectId} = req.params;
-    const response = await knex.select('*').from('projectrole').where({projectid:projectId})    
-    console.log(response);
+                   const [user] =  await knex.select('username').from('users').where({id:userid})
+    const [response] = await knex.select('*').from('projectrole').where({projectid:projectId,username:user.username,role:'project manager'})   
+
+    if(!response){
+        return res.status(401).json({error:"user is not the project manager of the project"})
+    }
+
+
     return next()    
 
 }
