@@ -23,6 +23,7 @@ router.post('/api/projects',auth, managerAuth, projectController.createProject);
 router.get('/api/projects/',auth, projectController.getAllProjects);
 router.get('/api/projects/:projectId',auth, projectController.getProjectById);
 router.put('/api/projects/:projectId',auth,isCurrentManager, projectController.updateProject);
+router.delete('/api/projects/:projectId',auth,isCurrentManager, projectController.deleteProject);
 // task routes
 router.post('/api/projects/:projectId/tasks',auth,taskController.createTask)
 module.exports = router;
@@ -30,6 +31,9 @@ module.exports = router;
 
 /*
 Authentication Routes:
+
+Token Refresh 
+PUT /api/refresh 
 
 User Registration:----------DONE
 POST /api/register
@@ -39,12 +43,11 @@ User Login:  --------------DONE
 POST /api/login
 
 
-User Logout:
+User Logout
 POST /api/logout
 
 
-
-d
+project routes
 
 Create Project:----------DONE
 POST /api/projects
@@ -59,11 +62,11 @@ GET /api/projects/:projectId
 
 
 Update Project:
-PUT /api/projects/:projectId----------------ONGOING 
+PUT /api/projects/:projectId----------------DONE 
 
 
 Delete Project:
-DELETE /api/projects/:projectId
+DELETE /api/projects/:projectId-------------ONGOING
 
 
 Task Routes:

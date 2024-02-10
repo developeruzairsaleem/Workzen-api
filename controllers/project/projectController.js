@@ -1,6 +1,7 @@
 const knex = require('../../config/dbConfig')
 const { saveProjectToDB, saveProjectRole, getUserForProject, saveProjectMember } = require('../../services/projectService');
 const { createResponseObjectCreateProject } = require('../../utils/responseUtils');
+const {isValidStringLength} = require('../../utils/validationUtils')
 
 
 const projectController={
@@ -123,15 +124,91 @@ async getProjectById(req,res,next){
 }
 ,
 
+//////////////////////////////////////////////
+// update PRJECT
+//////////////////////////////////////////////
+
+
 async updateProject(req,res,next){
 
-
-    return res.status(200).json({status:'success'})
-
-
+    const {title, description, status} = req.body;
+    const {projectId} = req.params;
 
 
+    // validate the inputs
+    if(!(isValidStringLength(title,8,80)&&isValidStringLength(description,20,500)&& isValidStringLength(status,5,20))){
+        return res.status(400).json({error:'Validation error occured during update'})
+    }
+
+    // update the project here
+    try {
+
+      const [response] = await knex('projects').update({title,description,status}).where('id','=',projectId).returning('*')
+      if(!response)return res.status(400).json({error:"project not found"});
+      return res.status(200).json({response})
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({error:'unable to update the project'})
+    }
+    // {
+    //     "title": "This is the title of usman project",
+    //     "description": "This is the description of usman project",
+    //     "author": "usman",
+    //     "projectId": 4,
+    //     "status": "pending",
+    //     "authorId": 2248,
+    //     "authorRole": "project manager"
+    // }
+
+},
+
+
+////////////////////////////////////////////////////
+// delete Project
+/////////////////////////////////////////////////////
+
+
+async deleteProject(req,res,next){
+
+   const {projectId} = req.params;
+   // delete the project
+    try {
+
+        // we will do it through transaction to get everything synced
+        // so if the single operation fails the whole database will rollback to original state
+       await knex.transaction(async(trx)=>{
+           await trx('projects').where({id:projectId}).del()
+           await trx('projectrole').where({projectid:projectId}).del()
+           await trx('projectmembers').where({projectid:projectId}).del()
+           await trx('tasks').where({projectid:projectId}).del()
+        })
+
+        return res.status(200).json({"success":"Successfully removed the project"})
+
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({'error':"Internal server error while removing the project from db"})
+    }
+
+   
+    
 }
+
+,
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
