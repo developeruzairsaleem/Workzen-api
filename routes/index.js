@@ -26,6 +26,8 @@ router.put('/api/projects/:projectId',auth,isCurrentManager, projectController.u
 router.delete('/api/projects/:projectId',auth,isCurrentManager, projectController.deleteProject);
 // task routes
 router.post('/api/projects/:projectId/tasks',auth,taskController.createTask)
+router.get('/api/projects/:projectId/tasks',auth,taskController.getAllTasksForProject)
+router.get('/api/projects/:projectId/tasks/:taskId',auth,taskController.getTaskById)
 module.exports = router;
 
 
@@ -35,6 +37,11 @@ Authentication Routes:
 Token Refresh 
 PUT /api/refresh 
 
+User Logout
+POST /api/logout
+
+
+
 User Registration:----------DONE
 POST /api/register
 
@@ -43,8 +50,6 @@ User Login:  --------------DONE
 POST /api/login
 
 
-User Logout
-POST /api/logout
 
 
 project routes
@@ -66,7 +71,7 @@ PUT /api/projects/:projectId----------------DONE
 
 
 Delete Project:
-DELETE /api/projects/:projectId-------------ONGOING
+DELETE /api/projects/:projectId-------------DONE
 
 
 Task Routes:
@@ -77,11 +82,11 @@ POST /api/projects/:projectId/tasks------ DONE
 
 
 Get All Tasks for a Project:
-GET /api/projects/:projectId/tasks
+GET /api/projects/:projectId/tasks ---------DONE
 
 
 Get Task by ID:
-GET /api/projects/:projectId/tasks/:taskId
+GET /api/projects/:projectId/tasks/:taskId-----------------ONGOING
 
 
 Update Task:

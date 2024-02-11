@@ -192,11 +192,8 @@ async deleteProject(req,res,next){
         return res.status(500).json({'error':"Internal server error while removing the project from db"})
     }
 
-   
-    
 }
 
-,
 
 
 

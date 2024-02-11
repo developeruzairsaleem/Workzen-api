@@ -92,6 +92,58 @@ async createTask(req,res, next){
 
 },
 
+////////////////////////////////////////////
+// get all the tasks for the specific project
+////////////////////////////////////////////
+
+async getAllTasksForProject(req,res,next){
+
+  const {projectId} = req.params;
+   // now its time to  work for the tasks
+   try {
+      const tasks  =  await knex.select('*').from('tasks').where({projectid:projectId})
+      return res.status(200).json({tasks:tasks})
+  } catch (error) {
+   console.log(error)
+  return res.status(500).json({error:"Error getting the tasks for the project"})        
+  }  
+
+}
+,
+
+
+
+////////////////////////////////////////////
+// get task by id for a particular project
+////////////////////////////////////////////
+
+
+async getTaskById(req,res,next){
+
+   const {projectId,taskId } = req.params;
+
+   try {
+
+     const [task] = await knex.select("*").from('tasks').where({projectid:projectId, id:taskId})
+      if(!task){
+         return res.status(400).json({error:'task not found'})
+      }
+      return res.status(200).json({task:task})
+
+
+   } catch (error) {
+
+      console.log(error);
+      return res.status(500).json({error:"Internal server error could not get the task"})
+      
+   }
+
+
+
+}
+
+
+
 
 
 
