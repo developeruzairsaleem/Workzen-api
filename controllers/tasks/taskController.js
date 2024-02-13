@@ -142,6 +142,57 @@ async getTaskById(req,res,next){
 
 }
 
+,
+
+
+
+
+////////////////////////////////////////////
+// update task for a particular project
+////////////////////////////////////////////
+
+async updateTask(req,res,next){
+
+   // updatable content by project manager
+   // title--------- description---------- assigned -----------status-------- deadline
+   // updatable content by team member or assignee
+   // -----------status--------
+   const {taskId, projectId} = req.params;
+   const {userid,role} = req.user;
+   const {status} = req.body;
+   let username;
+
+
+   // getting the username of the user
+   try {
+      const [user] = await knex.select('*').from('users').where('id','=',userid);
+      username = user?.username;
+      if(!username){
+         return res.status(400).json({error:"user does not exist with current userid"})
+      }
+   } catch (error) {
+      console.log(error)
+      res.statu(500).json({error:"Interna server error: when getting the user"})
+   }
+
+
+
+   // getting the task to perform update action on.
+   try {
+      await knex.select("*").from("tasks").where({id:taskId,projectid:projectId})
+      
+
+   } catch (error) {
+      console.log(error);
+      res.status(500).json({error:"Internal server error getting the task"})
+   }
+
+
+
+
+
+}
+
 
 
 
