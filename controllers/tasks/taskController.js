@@ -179,8 +179,19 @@ async updateTask(req,res,next){
 
    // getting the task to perform update action on.
    try {
-      await knex.select("*").from("tasks").where({id:taskId,projectid:projectId})
+
+
       
+     const [task] = await knex.select("*").from("tasks").where({id:taskId,projectid:projectId})
+      if(task.username===username){
+           // perform the assigner function
+      }
+      else if(task.assigned===username) {
+         // perform the assignee function 
+      }
+      else{
+         // current user is not related to the task
+      }
 
    } catch (error) {
       console.log(error);
