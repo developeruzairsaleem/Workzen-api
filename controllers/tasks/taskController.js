@@ -1,5 +1,5 @@
 const knex =require('../../config/dbConfig');
-
+const {isValidStringLength} = require('../../utils/validationUtils');
 
 
 const verifyDeadline =(deadline)=>{
@@ -19,7 +19,9 @@ const verifyDeadline =(deadline)=>{
 
 
 const taskController = {
+   
 
+   
 async createTask(req,res, next){
 
 
@@ -28,8 +30,21 @@ async createTask(req,res, next){
 // router.post('/api/projects/:projectId/tasks',auth,taskController.createTask)
     // validation for deadline and title description 
    const {title,description,assignedUsername, deadline} = req.body;
-
+   
+//////////////////////////////
+// -------------------------------
+   // validating the user input
+   if(!isValidStringLength(title,5,80)) return req.status(400).json({error:"Invalid title"})
+   if(!isValidStringLength(assignedUsername,5,80)) return req.status(400).json({error:"Invalid assignee"})
+   if(!isValidStringLength(description,5,200)) return req.status(400).json({error:"Invalid description"})
    if(!verifyDeadline(deadline)) return res.status(400).json({error:"Invalid date format"})
+   // validating the user input
+   // ------------------------------
+
+
+
+
+
    const{projectId} = req.params;
    const {userid,role}=req.user;
    let user ;
@@ -159,7 +174,7 @@ async updateTask(req,res,next){
    // -----------status--------
    const {taskId, projectId} = req.params;
    const {userid,role} = req.user;
-   const {status} = req.body;
+   const {status,title,description,deadline,assigned} = req.body;
    let username;
 
 
@@ -185,9 +200,14 @@ async updateTask(req,res,next){
      const [task] = await knex.select("*").from("tasks").where({id:taskId,projectid:projectId})
       if(task.username===username){
            // perform the assigner function
+           // status title description deadline
+
+
+           
       }
       else if(task.assigned===username) {
          // perform the assignee function 
+
       }
       else{
          // current user is not related to the task
@@ -197,10 +217,6 @@ async updateTask(req,res,next){
       console.log(error);
       res.status(500).json({error:"Internal server error getting the task"})
    }
-
-
-
-
 
 }
 
