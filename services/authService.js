@@ -10,6 +10,8 @@
     .returning('*')
     .transacting(trx)
 
+    
+
   }
 
 // saving user into 'users' table in database in register
