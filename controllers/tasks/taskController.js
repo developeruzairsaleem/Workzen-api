@@ -236,7 +236,7 @@ async updateTask(req,res,next){
      const [task] = await knex.select("*").from("tasks").where({id:taskId,projectid:projectId})
       if(task.username===username){
            // perform the assigner function
-           // status title description deadline 
+           // status title description deadline          
          //----------------
          //ERROR
          //----------------
