@@ -196,7 +196,7 @@ async updateTask(req,res,next){
    // -----------------------------------------------
    //validation of the description of the task
    // -----------------------------------------------
-   if(!isValidStringLength(description,5,200)&&description){
+   if(!isValidStringLength(description,5,200)&& description){
       return res.status(400).json({error:"Invalid description"})
    }
    
@@ -204,7 +204,7 @@ async updateTask(req,res,next){
    // validation of the deadline
    // -----------------------------------------------
 
-      if(verifyDeadline(deadline)&&deadline){
+      if(!verifyDeadline(deadline) && deadline){
          return res.status(400).json({error:"Invalid deadline"})
       }
 
@@ -230,6 +230,7 @@ async updateTask(req,res,next){
 
    // getting the task to perform update action on.
    try {
+      
 
 
       
