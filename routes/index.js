@@ -29,6 +29,7 @@ router.post('/api/projects/:projectId/tasks',auth,taskController.createTask)
 router.get('/api/projects/:projectId/tasks',auth,taskController.getAllTasksForProject)
 router.get('/api/projects/:projectId/tasks/:taskId',auth,taskController.getTaskById)
 router.put('/api/projects/:projectId/tasks/:taskId',auth,taskController.updateTask)
+router.delete('/api/projects/:projectId/tasks/:taskId',auth,taskController.deleteTask)
 module.exports = router;
 
 
@@ -91,7 +92,7 @@ GET /api/projects/:projectId/tasks/:taskId-----------------DONE
 
 
 Update Task:
-PUT /api/projects/:projectId/tasks/:taskId--------------ONGOING
+PUT /api/projects/:projectId/tasks/:taskId--------------DONE
 
 
 Delete Task:

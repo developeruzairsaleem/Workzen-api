@@ -176,39 +176,7 @@ async updateTask(req,res,next){
    const {userid,role} = req.user;
    const {status,title,description,deadline} = req.body;
    
-   // -----------------------------------------------
-   // validation of the status input from the user
-   // -----------------------------------------------
-   if(status!=="pending"&&status!=="completed"&&status!=="ongoing"&&status){
-      return res.status(400).json({error:"Invalid status"})
-   }
    
-   
-   // -----------------------------------------------
-   // validation of the title
-   // -----------------------------------------------
-   if(!isValidStringLength(title,5,80)&&title){
-      return res.status(400).json({error:"invalid title"})
-   }
-   
-
-
-   // -----------------------------------------------
-   //validation of the description of the task
-   // -----------------------------------------------
-   if(!isValidStringLength(description,5,200)&& description){
-      return res.status(400).json({error:"Invalid description"})
-   }
-   
-   // -----------------------------------------------
-   // validation of the deadline
-   // -----------------------------------------------
-
-      if(!verifyDeadline(deadline) && deadline){
-         return res.status(400).json({error:"Invalid deadline"})
-      }
-
-
 
 
    // will save the username of the current user requesting
@@ -228,42 +196,89 @@ async updateTask(req,res,next){
 
 
 
-   // getting the task to perform update action on.
    try {
       
-
-
+      
+      //----------------------------------------------
+      // getting the task to perform update action on.
+      //----------------------------------------------
       
      const [task] = await knex.select("*").from("tasks").where({id:taskId,projectid:projectId})
       if(task.username===username){
-           // perform the assigner function
-           // status title description deadline          
-         //----------------
-         //ERROR
-         //----------------
-  
-           const response = await knex.insert({deadline,title,description,status}).into('tasks').where({id:taskId,projectid:projectId})
-         //----------------
-         //ERROR
-         //----------------
-  
-        console.log("Inserted into database from the task assigner");
+         //-----------------------------------
+         // let's vaidate some data for the assigner
+         //-----------------------------------
 
-         return res.status(200).json(response);
+
+         // -----------------------------------------------
+         // validation of the status input from the user
+         // -----------------------------------------------
+         if(status!=="pending"&&status!=="completed"&&status!=="ongoing"){
+            return res.status(400).json({error:"Invalid status"})
+         }
+         
+         
+         // -----------------------------------------------
+         // validation of the title
+         // -----------------------------------------------
+         if(!isValidStringLength(title,5,80)){
+            return res.status(400).json({error:"invalid title"})
+         }
+         
+
+
+         // -----------------------------------------------
+         //validation of the description of the task
+         // -----------------------------------------------
+         if(!isValidStringLength(description,5,200)){
+            return res.status(400).json({error:"Invalid description"})
+         }
+         
+         // -----------------------------------------------
+         // validation of the deadline
+         // -----------------------------------------------
+
+            if(!verifyDeadline(deadline)){
+               return res.status(400).json({error:"Invalid deadline"})
+            }
+               
+         //-----------------------------------
+         // perform the assigner function      
+         //-----------------------------------
+            const response = await knex('tasks').where({id:taskId,projectid:projectId}).update({
+               deadline,title,description,status
+            }).returning('*')
+
+         return res.status(200).json({response});
            
       }
+
+      //-------------------------------------------------------------------------------
+      // perform the assignee function
+      //-------------------------------------------------------------------------------
       else if(task.assigned===username) {
          // perform the assignee function 
-         //----------------
-         //ERROR
-         //----------------
-         await knex.insert({status}).into('tasks').where({id:taskId,projectid:projectId})
-       //----------------
-         //ERROR
-         //----------------
-  
+         
+         if(status!=='pending'&&status!=='ongoing'&&status!=='completed') return res.status(400).json({
+            error:'invalid status'
+         })
+       try {
+          const response= await knex('tasks').where({id:taskId,projectid:projectId}).update({status}).returning("*")
+          return res.status(200).json({response})
+         }
+         
+         catch (error) {
+            console.log(error)
+            return res.status(400).json({error:"error updating the task"})
+         }
       }
+
+
+      //----------------------------------------------------------------------------------------------------
+      // don't perform the updation if the user is not the one who assigned and to whome the task is assigned
+      //----------------------------------------------------------------------------------------------------
       else{
+
          // current user is not related to the task
          return res.status(400).json({error:"Current user is not related to the task"})
       }
@@ -274,14 +289,13 @@ async updateTask(req,res,next){
    }
 
 }
+,
+
+async deleteTask(req,res,next){
+   console.log("hello")
 
 
-
-
-
-
-
-
+}
 }
 
 
