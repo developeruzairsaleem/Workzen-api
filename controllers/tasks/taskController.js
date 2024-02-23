@@ -18,6 +18,13 @@ const verifyDeadline =(deadline)=>{
 
 
 
+
+const getUsernameByUserId=async(userid)=>{
+ const [user] = await knex.select('*').from('users').where('id','=',userid);
+     return user?.username;
+}
+
+
 const taskController = {
    
 
@@ -184,8 +191,7 @@ async updateTask(req,res,next){
 
    // getting the username of the user
    try {
-      const [user] = await knex.select('*').from('users').where('id','=',userid);
-      username = user?.username;
+     username = await getUsernameByUserId(userid)
       if(!username){
          return res.status(400).json({error:"user does not exist with current userid"})
       }
@@ -292,8 +298,36 @@ async updateTask(req,res,next){
 ,
 
 async deleteTask(req,res,next){
-   console.log("hello")
+  
+   //------------------------------------------------------
+   // will save the username of the current user requesting
+   //------------------------------------------------------
+   const{userid,role}=req.user;
+   const{taskId,projectId}=req.params;
 
+   //---------------------------------
+   // getting the username of the user
+   //---------------------------------
+   let username;
+   try {
+    username = await getUsernameByUserId(userid)
+      if(!username){
+         return res.status(400).json({error:"user does not exist with current userid"})
+      }
+   } catch (error) {
+      console.log(error)
+      return res.status(500).json({error:"Internal server error: when getting the user"})
+   }
+
+   try {
+      
+    const response = await knex('tasks').where({id:taskId,projectid:projectId,username}).del();
+    console.log(response);
+    return res.status(200).json({response})
+   } catch (error) {
+      console.log(error);
+      return res.statu({error:"Error deleting the task"})
+   }
 
 }
 }
