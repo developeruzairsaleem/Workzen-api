@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const authController = require('../controllers/auth/authController')
-const projectController = require('../controllers/project/projectController');
 const managerAuth = require("../middleware/managerAuth");
-const auth = require('../middleware/auth');
-const taskController = require("../controllers/tasks/taskController");
 const isCurrentManager = require("../middleware/isCurrentManager");
+const auth = require('../middleware/auth');
+const authController = require('../controllers/auth/authController');
+const projectController = require('../controllers/project/projectController');
+const taskController = require("../controllers/tasks/taskController");
+const roleController = require("../controllers/role/roleController");
 //testing the server so everyting's working
 router.get('/testing',(req,res)=>{
     res.json('Just testing it!');
@@ -30,6 +31,9 @@ router.get('/api/projects/:projectId/tasks',auth,taskController.getAllTasksForPr
 router.get('/api/projects/:projectId/tasks/:taskId',auth,taskController.getTaskById)
 router.put('/api/projects/:projectId/tasks/:taskId',auth,taskController.updateTask)
 router.delete('/api/projects/:projectId/tasks/:taskId',auth,taskController.deleteTask)
+
+// user role routes
+router.post('/api/projects/:projectId/users/:userId',auth,isCurrentManager,roleController.assignUserToProject)
 module.exports = router;
 
 
@@ -96,13 +100,13 @@ PUT /api/projects/:projectId/tasks/:taskId--------------DONE
 
 
 Delete Task:
-DELETE /api/projects/:projectId/tasks/:taskId
+DELETE /api/projects/:projectId/tasks/:taskId-------------DONE
 
 User Roles Routes:
 
 
 Assign User to Project:
-POST /api/projects/:projectId/users/:userId
+POST /api/projects/:projectId/users/:userId-------------ONGOING
 
 
 
