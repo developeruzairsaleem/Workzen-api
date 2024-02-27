@@ -6,6 +6,8 @@ const roleController={
    async assignUserToProject(req,res,next){
         const{projectId,userId}=req.params;
         // check if the user is already a member of the project
+         console.log(typeof projectId,typeof userId)
+        return res.status(400).json({projectId,userId})
 
         let username;
         //--------------------------------------
