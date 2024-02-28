@@ -34,6 +34,8 @@ router.delete('/api/projects/:projectId/tasks/:taskId',auth,taskController.delet
 
 // user role routes
 router.post('/api/projects/:projectId/users/:userId',auth,isCurrentManager,roleController.assignUserToProject)
+router.delete('/api/projects/:projectId/users/:userId',auth,isCurrentManager,roleController.deleteUserFromProject)
+router.put('/api/projects/:projectId/users/:userId/role',auth,isCurrentManager,roleController.updateRoleInProject)
 module.exports = router;
 
 
@@ -106,12 +108,12 @@ User Roles Routes:
 
 
 Assign User to Project:
-POST /api/projects/:projectId/users/:userId-------------ONGOING
+POST /api/projects/:projectId/users/:userId-------------DONE
 
 
 
 Remove User from Project:
-DELETE /api/projects/:projectId/users/:userId
+DELETE /api/projects/:projectId/users/:userId-----------ONGOING
 
 
 Update User Role in Project:
