@@ -1,4 +1,5 @@
-const knex = require('../../config/dbConfig')
+const knex = require('../../config/dbConfig');
+const { isValidStringLength } = require('../../utils/validationUtils');
 
 
 const roleController={
@@ -69,14 +70,15 @@ const roleController={
        username = user.username;
     
 } catch (error) {
-        console.log(error); 
-
+    console.log(error); 
+    return res.status(400).json({error:"Error getting user"})
+    
     }
 
     // now after getting the username check if this is the user who created the project
     // if so don't delete the user else delete the user from the project
-
-
+    
+    
     try {
         const response =await knex.transaction(async trx=>{
             // deleting the projectrole
@@ -103,7 +105,30 @@ async updateRoleInProject(req,res,next){
     
 
     const{userId,projectId} = req.params;
+    const {role} = req.body;
+//----------------------ERRROR
+//----------------------ERRROR
+if(role!=='team member'&&role!=="project manager")return res.status(400).json({error:"Invalid input for role"})
+let username;
+try {
+    const [user]= await knex.select('*').from('users').where({id:userId})
+        if(!user) return res.status(400).json({error:"user does not exist to update role"}) 
+        username = user.username;
     
+} catch (error) {
+    console.log(error); 
+    return res.status(400).json({error:"Error getting user"})
+}
+
+
+
+try {
+    knex('project').update
+} catch (error) {
+    
+}
+//----------------------ERRROR
+//----------------------ERRROR
 
 
 
