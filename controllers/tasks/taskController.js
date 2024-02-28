@@ -326,7 +326,7 @@ async deleteTask(req,res,next){
     return res.status(200).json({response})
    } catch (error) {
       console.log(error);
-      return res.statu({error:"Error deleting the task"})
+      return res.status(400).json({error:"Error deleting the task"})
    }
 
 }

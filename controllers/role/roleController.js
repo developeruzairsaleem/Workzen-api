@@ -48,7 +48,7 @@ const roleController={
                 return {member,role}
             })
 
-        return res.status(400).json({response})
+        return res.status(200).json({response})
         } catch (error) {
             console.log(error);
             return res.status(400).json({error:"Error in transaction"})
@@ -59,6 +59,7 @@ const roleController={
 
     async deleteUserFromProject(req,res,next){
 
+
        const{userId,projectId} = req.params;
        // get the username of the user
        let username;
@@ -68,12 +69,29 @@ const roleController={
        username = user.username;
     
 } catch (error) {
-        console.log(error);
+        console.log(error); 
 
     }
+
     // now after getting the username check if this is the user who created the project
     // if so don't delete the user else delete the user from the project
-    
+
+
+    try {
+        const response =await knex.transaction(async trx=>{
+            // deleting the projectrole
+            const roleDel = await trx('projectrole').where({username,projectid:projectId,role:"team member"}).del();
+          console.log(roleDel)
+            if(!roleDel) throw Error;
+            const memberDel = await trx('projectmembers').where({username,projectid:projectId}).del();
+            console.log(roleDel,memberDel)
+            return{roleDel,memberDel}
+        })
+        return res.status(200).json({response})
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({error:"error in removing user from project"})
+    }
     
     
     
@@ -83,7 +101,11 @@ const roleController={
 async updateRoleInProject(req,res,next){
     
     
+
     const{userId,projectId} = req.params;
+    
+
+
 
     }
 
