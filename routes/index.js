@@ -7,6 +7,7 @@ const authController = require('../controllers/auth/authController');
 const projectController = require('../controllers/project/projectController');
 const taskController = require("../controllers/tasks/taskController");
 const roleController = require("../controllers/role/roleController");
+const isCurrentOwner = require("../middleware/isCurrentOwner")
 //testing the server so everyting's working
 router.get('/testing',(req,res)=>{
     res.json('Just testing it!');
@@ -35,7 +36,7 @@ router.delete('/api/projects/:projectId/tasks/:taskId',auth,taskController.delet
 // user role routes
 router.post('/api/projects/:projectId/users/:userId',auth,isCurrentManager,roleController.assignUserToProject)
 router.delete('/api/projects/:projectId/users/:userId',auth,isCurrentManager,roleController.deleteUserFromProject)
-router.put('/api/projects/:projectId/users/:userId/role',auth,isCurrentManager,roleController.updateRoleInProject)
+router.put('/api/projects/:projectId/users/:userId/role',auth,isCurrentOwner,roleController.updateRoleInProject)
 module.exports = router;
 
 

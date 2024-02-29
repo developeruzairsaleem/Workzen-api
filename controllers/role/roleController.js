@@ -1,5 +1,6 @@
 const knex = require('../../config/dbConfig');
-const { isValidStringLength } = require('../../utils/validationUtils');
+const { isValidStringLength,isValidProjectRole } = require('../../utils/validationUtils');
+const {getUser} =  require("../../utils/user")
 
 
 const roleController={
@@ -100,39 +101,73 @@ const roleController={
     
     
 },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 async updateRoleInProject(req,res,next){
     
-    
-
+    //------------------------
+    //get the info from the client
+    //------------------------
     const{userId,projectId} = req.params;
     const {role} = req.body;
-//----------------------ERRROR
-//----------------------ERRROR
-if(role!=='team member'&&role!=="project manager")return res.status(400).json({error:"Invalid input for role"})
-let username;
-try {
-    const [user]= await knex.select('*').from('users').where({id:userId})
-        if(!user) return res.status(400).json({error:"user does not exist to update role"}) 
-        username = user.username;
     
-} catch (error) {
-    console.log(error); 
-    return res.status(400).json({error:"Error getting user"})
-}
-
-
-
-try {
-    knex('project').update
-} catch (error) {
-    
-}
-//----------------------ERRROR
-//----------------------ERRROR
-
-
-
+    //--------------------------------
+    //check if the role data is valid
+    //--------------------------------
+    if(!isValidProjectRole(role)){
+        return res.status(400).json({error:"Invalid input for role"})
     }
+
+
+    //---------------------------------------------------------------------------
+    // now get the username of the user we have to update the role of in a project
+    //---------------------------------------------------------------------------
+
+    let username;
+    try {
+        const user = await getUser(userId);
+        if(!user) {
+            return res.status(400).json({error:"user does not exist to update role"}) 
+        }
+        username = user.username;
+    } catch (error) {
+        console.log(error); 
+        return res.status(400).json({error:"Error getting user"})
+    }
+
+
+    //--------------------------------------------------
+    // now update the role for the user
+    //--------------------------------------------------
+
+    try {
+       const response = await knex('projectrol\e').where({username,projectid:projectId}).update({role}).returning('*')
+       return res.status(200).json({response})
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({error:"Error updating the role of user"})
+    }
+
+
+        }
 
 
 

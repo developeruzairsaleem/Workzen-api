@@ -35,6 +35,11 @@
   }
 
 
+  const isValidProjectRole=(role)=>{
+   return role==='team member'||role==="project manager"
+  }
+
+
   module.exports ={
-    validateUser,isValidEmail,isValidStringLength
+    validateUser,isValidEmail,isValidStringLength,isValidProjectRole
   }
