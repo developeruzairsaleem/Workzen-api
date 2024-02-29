@@ -5,14 +5,18 @@ const {getUser} =  require("../../utils/user")
 
 const roleController={
 
+
    async assignUserToProject(req,res,next){
         const{projectId,userId}=req.params;
-        // check if the user is already a member of the project
-         console.log(typeof projectId,typeof userId)
 
-        let username;
+        //---------------------------------------------------
+        // check if the user is already a member of the project
+        //---------------------------------------------------
+
+        
         //--------------------------------------
         // get the username of the registering user
+        let username;
         try {
             const [user] =   await knex.select("*").from("users").where({id:userId})
                 if(!user){
@@ -58,6 +62,31 @@ const roleController={
         }
 
     },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     async deleteUserFromProject(req,res,next){
 
@@ -159,7 +188,14 @@ async updateRoleInProject(req,res,next){
     //--------------------------------------------------
 
     try {
-       const response = await knex('projectrol\e').where({username,projectid:projectId}).update({role}).returning('*')
+       const [response] =  await knex('projectrole')
+       .update({role})
+       .where({username,projectid:projectId})
+       .returning('*')
+
+        if(!response){
+            return res.status(400).json({error:"User is not in the current project"})
+        }
        return res.status(200).json({response})
     } catch (error) {
         console.log(error)
