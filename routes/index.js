@@ -34,8 +34,8 @@ router.put('/api/projects/:projectId/tasks/:taskId',auth,taskController.updateTa
 router.delete('/api/projects/:projectId/tasks/:taskId',auth,taskController.deleteTask)
 
 // user role routes
-router.post('/api/projects/:projectId/users/:userId',auth,isCurrentManager,roleController.assignUserToProject)
-router.delete('/api/projects/:projectId/users/:userId',auth,isCurrentManager,roleController.deleteUserFromProject)
+router.post('/api/projects/:projectId/users/:userId',auth,isCurrentOwner,roleController.addUserToProject)
+router.delete('/api/projects/:projectId/users/:userId',auth,isCurrentOwner,roleController.deleteUserFromProject)
 router.put('/api/projects/:projectId/users/:userId/role',auth,isCurrentOwner,roleController.updateRoleInProject)
 module.exports = router;
 

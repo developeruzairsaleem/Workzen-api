@@ -36,7 +36,7 @@
 
 
   const isValidProjectRole=(role)=>{
-   return role==='team member'||role==="project manager"
+   return role==='team member'||role==="project manager";
   }
 
 

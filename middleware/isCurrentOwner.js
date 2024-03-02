@@ -13,7 +13,7 @@ const isCurrentOwner=async(req,res,next)=>{
        const [project] = await knex.select('*').from('projects').where({id:projectId})
        
        //if the project does not exist return error
-       if(!project) return res.status(401).json({error:"The project does not exist"})
+       if(!project) return res.status(400).json({error:"The project does not exist"})
        
        // otherwise go to the next middleware 
        return next();
