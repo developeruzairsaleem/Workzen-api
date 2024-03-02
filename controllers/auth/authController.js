@@ -132,7 +132,15 @@ const authController = {
 ,
 
 
-  logout(req, res, next) {},
+  logout(req, res, next) {
+
+    
+
+
+
+
+
+  },
 };
 
 module.exports = authController;

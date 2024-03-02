@@ -43,10 +43,10 @@ module.exports = router;
 /*
 Authentication Routes:
 
-Token Refresh 
+Token Refresh -------------will give a new access token with the refresh token
 PUT /api/refresh 
 
-User Logout
+User Logout:-------------will be done on the frontend
 POST /api/logout
 
 
@@ -114,16 +114,18 @@ POST /api/projects/:projectId/users/:userId-------------DONE
 
 
 Remove User from Project:
-DELETE /api/projects/:projectId/users/:userId-----------ONGOING
+DELETE /api/projects/:projectId/users/:userId-----------DONE
 
 
 Update User Role in Project:
-PUT /api/projects/:projectId/users/:userId/role
+PUT /api/projects/:projectId/users/:userId/role--------DONE
 
 
 
 Miscellaneous Routes:
 
+Get All Users:
+GET /api/users
 
 Get User Profile:
 GET /api/users/:userId
