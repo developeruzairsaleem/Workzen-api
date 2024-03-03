@@ -18,6 +18,7 @@ router.get('/testing',(req,res)=>{
 router.post('/api/register',authController.register);
 router.post('/api/login',authController.login);
 router.post('/api/logout',auth,authController.logout);
+router.post('/api/refresh',authController.refresh);
 
 // project routes
 

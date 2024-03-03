@@ -134,13 +134,24 @@ const authController = {
 
   logout(req, res, next) {
 
-    
+
 
 
 
 
 
   },
+
+  refresh(req,res,next){
+    // when the access token expires we will call this controller to send a new one;)
+    // first off we will verify the refresh token
+    const{refreshToken} = req.body;
+    if(!refreshToken)return res.status(400).json({error:"Refresh token is not provided"})
+    
+    const accessToken = generateAccessToken(user.id,userRole.role);
+
+
+  }
 };
 
 module.exports = authController;
