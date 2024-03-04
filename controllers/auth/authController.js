@@ -138,17 +138,19 @@ const authController = {
   },
 
   refresh(req,res,next){
-    // when the access token expires we will call this controller to send a new access refresh Token;)
+    // when the access token expires we will call this controller to send a new access refresh Token
     // first off we will verify the refresh token
-    const{refreshToken} = req.body;
-    if(!refreshToken)return res.status(400).json({error:"Refresh token is not provided"})
-    jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET,async(err,user)=>{
+    const{refresh} = req.body;
+    if(!refresh)return res.status(400).json({error:"Refresh token is not provided"})
+    jwt.verify(refresh,process.env.REFRESH_TOKEN_SECRET,async(err,user)=>{
   if(err){
     return res.status(401).json({error:"invalid refresh token"})
   }
   let tokenFound;
   try {
-     tokenFound = await knex.select('*').from('tokens').where('userid','=',user.userid).first();
+    // THis won't check the actual token in db but will check that if the userid has the token or not
+     tokenFound = await knex.select('*').from('tokens').where({userid:user.userid}).first();
+     console.log(tokenFound)
     
   } catch (error) {
     console.log(error);
