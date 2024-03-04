@@ -8,7 +8,6 @@ const cleanUpDatabase=async(email)=>{
         await knex('userrole').where({email}).del();
         await knex('login').where({email}).del();
         await knex('users').where({email}).del();
-        // Add additional delete statements for related tables if needed
       } catch (error) {
         console.error('Error cleaning up the database:', error);
       }

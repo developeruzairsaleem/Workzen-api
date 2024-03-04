@@ -1,6 +1,7 @@
 const knex = require('../../config/dbConfig')
 const bcrypt = require("bcrypt");
-const {validateUser} = require('../../utils/validationUtils')
+const {validateUser} = require('../../utils/validationUtils');
+const jwt = require('jsonwebtoken')
 const {createResponseObjectRegister, saveTokensInResponseObj, createResponseObjectLogin} = require('../../utils/responseUtils')
 const{savePasswordHashToDB,saveUserRoleToDB,saveUserToDB, isUserRegistered, isPasswordCorrect, getUserRole, getUser} = require('../../services/authService')
 const {generateRefreshToken,generateAccessToken,storeRefreshToken} = require('../../services/jwtService')
@@ -134,21 +135,42 @@ const authController = {
 
   logout(req, res, next) {
 
-
-
-
-
-
-
   },
 
   refresh(req,res,next){
-    // when the access token expires we will call this controller to send a new one;)
+    // when the access token expires we will call this controller to send a new access refresh Token;)
     // first off we will verify the refresh token
     const{refreshToken} = req.body;
     if(!refreshToken)return res.status(400).json({error:"Refresh token is not provided"})
+    jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET,async(err,user)=>{
+  if(err){
+    return res.status(401).json({error:"invalid refresh token"})
+  }
+  let tokenFound;
+  try {
+     tokenFound = await knex.select('*').from('tokens').where('userid','=',user.userid).first();
     
-    const accessToken = generateAccessToken(user.id,userRole.role);
+  } catch (error) {
+    console.log(error);
+    return res.status(401).json({error:"invalid refresh token"})
+  }
+  // IF TOKENS ARE NOT AVAILABLE IN DB
+  if(!tokenFound){
+    return res.status(401).json({error:"invalid refresh token"})
+  }
+    // GENERATING TOKEN PAIN
+    const accessToken = generateAccessToken(user.userid,user.role);
+    const refreshToken = generateRefreshToken(user.userid,user.role);
+    try {
+      await storeRefreshToken(refreshToken,user.userid,knex);
+      // RETURNING THE TOKENS TO CLIENT
+      return res.status(200).json({response:{accessToken,refreshToken}})
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({error:"internal server error storing token"})
+    }
+ 
+   })
 
 
   }
